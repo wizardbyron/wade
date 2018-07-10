@@ -8,11 +8,13 @@ from multiprocessing import Pool
 
 def request_process(i, time_long, url):
     result = {'Process':i, '2XX':0 ,'3XX':0, '4XX':0, '5XX':0}
-
+    log = []
     start_time = time.time()
     while time.time() < start_time + float(time_long) * 60 + 1:
         response = requests.get(url)
         status_code = response.status_code
+        st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+        log.append("[{0}] Thread-{1}:{2}".format(st,i,status_code))
         code = "{0}XX".format(str(status_code)[0])
         result[code] = result[code] + 1
     end_time = time.time()
@@ -21,6 +23,7 @@ def request_process(i, time_long, url):
     result['end time']=datetime.datetime.fromtimestamp(end_time).strftime('%Y-%m-%d %H:%M:%S')
     result['duriation']=datetime.datetime.fromtimestamp(end_time-start_time).strftime('%M:%S')
     return result
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -38,6 +41,7 @@ def main():
     pool.join()
     for i in range(int(args.process_num)):
         print(results[i].get())
+
 
 if __name__ == '__main__':
     main()
